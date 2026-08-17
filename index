@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Obra: Vaciado de Veredas 3000m²</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Estilos personalizados adicionales */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        
+        .tab-btn.active {
+            border-bottom-width: 4px;
+            border-color: #2563eb; /* blue-600 */
+            color: #2563eb;
+            font-weight: 600;
+        }
+        
+        /* Animación para el cambio de pestañas */
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Diseño del timeline */
+        .timeline-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 24px;
+            height: 100%;
+            width: 4px;
+            background: #e2e8f0;
+            border-radius: 4px;
+        }
+        @media (min-width: 768px) {
+            .timeline-container::before {
+                left: 50%;
+                transform: translateX(-50%);
+            }
+            .timeline-item:nth-child(even) .timeline-content {
+                margin-left: auto;
+            }
+            .timeline-item:nth-child(odd) .timeline-content {
+                text-align: right;
+            }
+            .timeline-item:nth-child(even) .timeline-dot {
+                left: -14px;
+            }
+            .timeline-item:nth-child(odd) .timeline-dot {
+                right: -42px; /* Ajuste visual del punto en desktop */
+            }
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <header class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-blue-600 text-white p-2 rounded-lg">
+                        <i class="fa-solid fa-person-digging text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h1 class="text-xl font-bold text-slate-900">Proyecto Civil: Veredas 3000m²</h1>
+                        <p class="text-xs text-slate-500">Panel de Control & Gestión de Obra</p>
+                    </div>
+                </div>
+                <div class="hidden md:block">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                        <i class="fa-solid fa-circle text-[8px] mr-2"></i> En Ejecución
+                    </span>
+                </div>
+            </div>
+            
+            <!-- Navegación de Pestañas -->
+            <nav class="flex overflow-x-auto hide-scrollbar space-x-8 mt-2" aria-label="Tabs">
+                <button onclick="openTab('resumen')" id="btn-resumen" class="tab-btn active whitespace-nowrap py-3 px-1 border-b-4 border-transparent text-sm font-medium text-slate-500 hover:text-slate-700 hover:border-slate-300">
+                    <i class="fa-solid fa-chart-pie mr-2"></i> Resumen
+                </button>
+                <button onclick="openTab('secuencia')" id="btn-secuencia" class="tab-btn whitespace-nowrap py-3 px-1 border-b-4 border-transparent text-sm font-medium text-slate-500 hover:text-slate-700 hover:border-slate-300">
+                    <i class="fa-solid fa-list-ol mr-2"></i> Secuencia Constructiva
+                </button>
+                <button onclick="openTab('presupuesto')" id="btn-presupuesto" class="tab-btn whitespace-nowrap py-3 px-1 border-b-4 border-transparent text-sm font-medium text-slate-500 hover:text-slate-700 hover:border-slate-300">
+                    <i class="fa-solid fa-file-invoice-dollar mr-2"></i> Presupuesto & APU
+                </button>
+                <button onclick="openTab('cronograma')" id="btn-cronograma" class="tab-btn whitespace-nowrap py-3 px-1 border-b-4 border-transparent text-sm font-medium text-slate-500 hover:text-slate-700 hover:border-slate-300">
+                    <i class="fa-solid fa-calendar-days mr-2"></i> Cronograma
+                </button>
+                <button onclick="openTab('valorizaciones')" id="btn-valorizaciones" class="tab-btn whitespace-nowrap py-3 px-1 border-b-4 border-transparent text-sm font-medium text-slate-500 hover:text-slate-700 hover:border-slate-300">
+                    <i class="fa-solid fa-chart-line mr-2"></i> Valorizaciones
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- ================= PESTAÑA: RESUMEN ================= -->
+        <section id="tab-resumen" class="tab-content block fade-in">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-slate-800">Ficha Técnica del Proyecto</h2>
+                <p class="text-slate-600 mt-1">Visión general de las especificaciones y alcance de la obra.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <!-- KPI 1 -->
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-slate-100 flex items-center space-x-4">
+                    <div class="p-3 bg-blue-100 text-blue-600 rounded-lg">
+                        <i class="fa-solid fa-ruler-combined text-2xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-slate-500">Área Total</p>
+                        <p class="text-2xl font-bold text-slate-800">3,000 <span class="text-lg text-slate-500">m²</span></p>
+                    </div>
+                </div>
+                <!-- KPI 2 -->
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-slate-100 flex items-center space-x-4">
+                    <div class="p-3 bg-slate-100 text-slate-600 rounded-lg">
+                        <i class="fa-solid fa-cubes text-2xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-slate-500">Concreto Requerido</p>
+                        <p class="text-2xl font-bold text-slate-800">300 <span class="text-lg text-slate-500">m³</span></p>
+                        <p class="text-xs text-slate-400">Espesor 10cm</p>
+                    </div>
+                </div>
+                <!-- KPI 3 -->
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-slate-100 flex items-center space-x-4">
+                    <div class="p-3 bg-green-100 text-green-600 rounded-lg">
+                        <i class="fa-solid fa-money-bill-wave text-2xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-slate-500">Presupuesto Base</p>
+                        <p class="text-2xl font-bold text-slate-800">S/ 274,500</p>
+                    </div>
+                </div>
+                <!-- KPI 4 -->
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-slate-100 flex items-center space-x-4">
+                    <div class="p-3 bg-orange-100 text-orange-600 rounded-lg">
+                        <i class="fa-solid fa-clock text-2xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-slate-500">Plazo de Ejecución</p>
+                        <p class="text-2xl font-bold text-slate-800">45 <span class="text-lg text-slate-500">días</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-slate-100">
+                <div class="p-6 border-b border-slate-100">
+                    <h3 class="text-lg font-bold text-slate-800">Descripción de los Trabajos</h3>
+                </div>
+                <div class="p-6 text-slate-600 space-y-4">
+                    <p>El proyecto comprende la construcción de <strong>3,000 metros cuadrados de veredas de concreto rígido</strong> en zonas urbanas para mejorar la transitabilidad peatonal. Las veredas tendrán un espesor de 0.10 m, utilizando concreto premezclado de resistencia <strong>f'c = 175 kg/cm²</strong>.</p>
+                    <p>Se incluye el corte a nivel de subrasante, perfilado y compactación manual, instalación de encofrado de madera y vaciado. El acabado será frotachado y bruñado en paños de acuerdo a los planos de detalle, culminando con la aplicación de curador químico y sellado de juntas asfálticas.</p>
+                    
+                    <div class="mt-6">
+                        <h4 class="font-semibold text-slate-800 mb-2">Especificaciones Técnicas Principales:</h4>
+                        <ul class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <li class="flex items-center"><i class="fa-solid fa-check text-green-500 mr-2"></i> Resistencia de concreto: f'c=175 kg/cm²</li>
+                            <li class="flex items-center"><i class="fa-solid fa-check text-green-500 mr-2"></i> Espesor de la losa: 10 cm (0.10m)</li>
+                            <li class="flex items-center"><i class="fa-solid fa-check text-green-500 mr-2"></i> Base/Subrasante: Compactada al 95% del Proctor Modificado</li>
+                            <li class="flex items-center"><i class="fa-solid fa-check text-green-500 mr-2"></i> Acabado: Semipulido con bruñas de separación</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PESTAÑA: SECUENCIA CONSTRUCTIVA ================= -->
+        <section id="tab-secuencia" class="tab-content hidden fade-in">
+            <div class="mb-8 text-center md:text-left">
+                <h2 class="text-2xl font-bold text-slate-800">Secuencia de Ejecución de la Obra</h2>
+                <p class="text-slate-600 mt-1">Paso a paso metodológico para el correcto vaciado de veredas.</p>
+            </div>
+
+            <div class="relative timeline-container py-8 max-w-4xl mx-auto">
+                <!-- Paso 1 -->
+                <div class="relative z-10 timeline-item flex flex-col md:flex-row items-center mb-16">
+                    <div class="md:w-1/2 w-full pl-12 md:pl-0 md:pr-12 relative">
+                        <div class="timeline-content bg-white p-6 rounded-xl shadow-md border border-slate-100 hover:shadow-lg transition-shadow">
+                            <span class="text-blue-600 font-bold text-sm uppercase tracking-wider mb-2 block">Paso 1</span>
+                            <h3 class="text-lg font-bold text-slate-800 mb-2"><i class="fa-solid fa-compass-drafting mr-2 text-slate-400"></i>Trazo y Replanteo</h3>
+                            <p class="text-slate-600 text-sm">Se establecen los ejes y niveles referenciales según los planos topográficos. Uso de nivel de ingeniero, cordeles y yeso para marcar el área exacta a intervenir (3000m²).</p>
+                        </div>
+                        <!-- Punto visual (Desktop via CSS pseudo, Mobile absoluto) -->
+                        <div class="absolute left-[-11px] md:left-auto md:right-[-42px] top-6 w-8 h-8 rounded-full bg-blue-600 border-4 border-white shadow flex items-center justify-center timeline-dot">
+                            <i class="fa-solid fa-1 text-white text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Paso 2 -->
+                <div class="relative z-10 timeline-item flex flex-col md:flex-row items-center mb-16">
+                    <div class="md:w-1/2 w-full pl-12 md:pl-0 relative md:ml-auto">
+                        <div class="timeline-content bg-white p-6 rounded-xl shadow-md border border-slate-100 hover:shadow-lg transition-shadow">
+                            <span class="text-orange-500 font-bold text-sm uppercase tracking-wider mb-2 block">Paso 2</span>
+                            <h3 class="text-lg font-bold text-slate-800 mb-2"><i class="fa-solid fa-truck-moving mr-2 text-slate-400"></i>Movimiento de Tierras</h3>
+                            <p class="text-slate-600 text-sm">Corte del terreno natural hasta la cota de subrasante (profundidad de 10cm + cama de arena si lo requiere el suelo). Se retira el material excedente y se procede a la perfilación y compactación manual y con plancha compactadora.</p>
+                        </div>
+                        <div class="absolute left-[-11px] top-6 w-8 h-8 rounded-full bg-orange-500 border-4 border-white shadow flex items-center justify-center timeline-dot">
+                            <i class="fa-solid fa-2 text-white text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Paso 3 -->
+                <div class="relative z-10 timeline-item flex flex-col md:flex-row items-center mb-16">
+                    <div class="md:w-1/2 w-full pl-12 md:pl-0 md:pr-12 relative">
+                        <div class="timeline-content bg-white p-6 rounded-xl shadow-md border border-slate-100 hover:shadow-lg transition-shadow">
+                            <span class="text-yellow-500 font-bold text-sm uppercase tracking-wider mb-2 block">Paso 3</span>
+                            <h3 class="text-lg font-bold text-slate-800 mb-2"><i class="fa-solid fa-border-all mr-2 text-slate-400"></i>Encofrado</h3>
+                            <p class="text-slate-600 text-sm">Colocación de encofrado de madera perimetral (listones de 4" de alto), asegurados con estacas para garantizar la contención del concreto fresco. Se verifica el nivel, la pendiente transversal (1-2% para drenaje) y alineamiento.</p>
+                        </div>
+                        <div class="absolute left-[-11px] md:left-auto md:right-[-42px] top-6 w-8 h-8 rounded-full bg-yellow-500 border-4 border-white shadow flex items-center justify-center timeline-dot">
+                            <i class="fa-solid fa-3 text-white text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Paso 4 -->
+                <div class="relative z-10 timeline-item flex flex-col md:flex-row items-center mb-16">
+                    <div class="md:w-1/2 w-full pl-12 md:pl-0 relative md:ml-auto">
+                        <div class="timeline-content bg-white p-6 rounded-xl shadow-md border border-slate-100 hover:shadow-lg transition-shadow">
+                            <span class="text-slate-700 font-bold text-sm uppercase tracking-wider mb-2 block">Paso 4</span>
+                            <h3 class="text-lg font-bold text-slate-800 mb-2"><i class="fa-solid fa-trowel-bricks mr-2 text-slate-400"></i>Vaciado y Acabado</h3>
+                            <p class="text-slate-600 text-sm">Vaciado del concreto f'c=175 kg/cm². Se realiza el esparcido y vibrado (vibradora de aguja) para eliminar vacíos. Luego se procede a la regla, frotachado y finalmente el acabado superficial con herramientas manuales (bruñado para paños y cantos).</p>
+                        </div>
+                        <div class="absolute left-[-11px] top-6 w-8 h-8 rounded-full bg-slate-700 border-4 border-white shadow flex items-center justify-center timeline-dot">
+                            <i class="fa-solid fa-4 text-white text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Paso 5 -->
+                <div class="relative z-10 timeline-item flex flex-col md:flex-row items-center">
+                    <div class="md:w-1/2 w-full pl-12 md:pl-0 md:pr-12 relative">
+                        <div class="timeline-content bg-white p-6 rounded-xl shadow-md border border-slate-100 hover:shadow-lg transition-shadow">
+                            <span class="text-cyan-500 font-bold text-sm uppercase tracking-wider mb-2 block">Paso 5</span>
+                            <h3 class="text-lg font-bold text-slate-800 mb-2"><i class="fa-solid fa-droplet mr-2 text-slate-400"></i>Curado y Juntas</h3>
+                            <p class="text-slate-600 text-sm">Aplicación de aditivo curador químico o método de arroceras con agua durante 7 días mínimos. Posterior desencofrado y sellado de las juntas de dilatación (cada 3 a 5 metros) con mezcla asfáltica y arena.</p>
+                        </div>
+                        <div class="absolute left-[-11px] md:left-auto md:right-[-42px] top-6 w-8 h-8 rounded-full bg-cyan-500 border-4 border-white shadow flex items-center justify-center timeline-dot">
+                            <i class="fa-solid fa-5 text-white text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ================= PESTAÑA: PRESUPUESTO Y APU ================= -->
+        <section id="tab-presupuesto" class="tab-content hidden fade-in">
+            <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-800">Presupuesto del Proyecto</h2>
+                    <p class="text-slate-600 mt-1">Metrados, precios unitarios y total estimado.</p>
+                </div>
+                <button class="mt-4 md:mt-0 bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm">
+                    <i class="fa-solid fa-download mr-2"></i> Exportar a Excel
+                </button>
+            </div>
+
+            <!-- Tabla de Presupuesto -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-x-auto mb-10">
+                <table class="min-w-full divide-y divide-slate-200">
+                    <thead class="bg-slate-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Ítem</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Descripción</th>
+                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">Unid.</th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Metrado</th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Precio Unit. (S/)</th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Parcial (S/)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-slate-200 text-sm">
+                        <!-- Obras Preliminares -->
+                        <tr class="bg-slate-50 font-semibold">
+                            <td class="px-6 py-3">01.00</td>
+                            <td colspan="5">OBRAS PRELIMINARES</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50">
+                            <td class="px-6 py-3 text-slate-500">01.01</td>
+                            <td class="px-6 py-3">Trazo, niveles y replanteo topográfico</td>
+                            <td class="px-6 py-3 text-center">m²</td>
+                            <td class="px-6 py-3 text-right">3,000.00</td>
+                            <td class="px-6 py-3 text-right">1.50</td>
+                            <td class="px-6 py-3 text-right font-medium">4,500.00</td>
+                        </tr>
+                        
+                        <!-- Movimiento de tierras -->
+                        <tr class="bg-slate-50 font-semibold">
+                            <td class="px-6 py-3">02.00</td>
+                            <td colspan="5">MOVIMIENTO DE TIERRAS</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50">
+                            <td class="px-6 py-3 text-slate-500">02.01</td>
+                            <td class="px-6 py-3">Corte y nivelación manual de terreno</td>
+                            <td class="px-6 py-3 text-center">m²</td>
+                            <td class="px-6 py-3 text-right">3,000.00</td>
+                            <td class="px-6 py-3 text-right">8.50</td>
+                            <td class="px-6 py-3 text-right font-medium">25,500.00</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50">
+                            <td class="px-6 py-3 text-slate-500">02.02</td>
+                            <td class="px-6 py-3">Eliminación de material excedente (D=5km)</td>
+                            <td class="px-6 py-3 text-center">m³</td>
+                            <td class="px-6 py-3 text-right">360.00</td> <!-- Considerando esponjamiento 20% sobre 300m3 -->
+                            <td class="px-6 py-3 text-right">35.00</td>
+                            <td class="px-6 py-3 text-right font-medium">12,600.00</td>
+                        </tr>
+
+                        <!-- Concreto Simple -->
+                        <tr class="bg-slate-50 font-semibold">
+                            <td class="px-6 py-3">03.00</td>
+                            <td colspan="5">OBRAS DE CONCRETO SIMPLE (VEREDAS)</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50">
+                            <td class="px-6 py-3 text-slate-500">03.01</td>
+                            <td class="px-6 py-3">Encofrado y desencofrado normal para veredas</td>
+                            <td class="px-6 py-3 text-center">m²</td>
+                            <td class="px-6 py-3 text-right">600.00</td> <!-- Solo áreas laterales expuestas -->
+                            <td class="px-6 py-3 text-right">28.00</td>
+                            <td class="px-6 py-3 text-right font-medium">16,800.00</td>
+                        </tr>
+                        <tr class="hover:bg-blue-50 bg-blue-50/30">
+                            <td class="px-6 py-3 text-slate-500">03.02</td>
+                            <td class="px-6 py-3 font-semibold text-blue-700 cursor-pointer" title="Ver Análisis de Precio Unitario (APU) abajo">
+                                Concreto f'c=175 kg/cm² para veredas e=10cm inc. curado <i class="fa-solid fa-circle-info ml-1 text-blue-400"></i>
+                            </td>
+                            <td class="px-6 py-3 text-center">m²</td>
+                            <td class="px-6 py-3 text-right">3,000.00</td>
+                            <td class="px-6 py-3 text-right font-bold text-blue-700">68.50</td>
+                            <td class="px-6 py-3 text-right font-bold text-blue-700">205,500.00</td>
+                        </tr>
+
+                        <!-- Juntas -->
+                        <tr class="bg-slate-50 font-semibold">
+                            <td class="px-6 py-3">04.00</td>
+                            <td colspan="5">JUNTAS</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50">
+                            <td class="px-6 py-3 text-slate-500">04.01</td>
+                            <td class="px-6 py-3">Juntas de dilatación asfáltica e=1"</td>
+                            <td class="px-6 py-3 text-center">m</td>
+                            <td class="px-6 py-3 text-right">800.00</td>
+                            <td class="px-6 py-3 text-right">12.00</td>
+                            <td class="px-6 py-3 text-right font-medium">9,600.00</td>
+                        </tr>
+                    </tbody>
+                    <tfoot class="bg-slate-800 text-white">
+                        <tr>
+                            <td colspan="4" class="px-6 py-4 text-right font-bold text-sm uppercase">Costo Directo Total</td>
+                            <td class="px-6 py-4"></td>
+                            <td class="px-6 py-4 text-right font-bold text-lg">S/ 274,500.00</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- APU Detallado -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                <div class="flex items-center mb-4">
+                    <i class="fa-solid fa-microscope text-blue-600 text-xl mr-3"></i>
+                    <h3 class="text-xl font-bold text-slate-800">Análisis de Precio Unitario (APU) - Partida 03.02</h3>
+                </div>
+                <p class="text-sm text-slate-600 mb-4"><strong>Descripción:</strong> Concreto f'c=175 kg/cm² para veredas e=10cm inc. acabado frotachado y curado.<br><strong>Rendimiento:</strong> 120.00 m²/Día.</p>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-sm">
+                        <thead class="bg-slate-100 text-slate-600 border-b border-slate-300">
+                            <tr>
+                                <th class="px-4 py-2 text-left font-semibold">Recurso</th>
+                                <th class="px-4 py-2 text-center font-semibold">Unidad</th>
+                                <th class="px-4 py-2 text-right font-semibold">Cuadrilla</th>
+                                <th class="px-4 py-2 text-right font-semibold">Cantidad</th>
+                                <th class="px-4 py-2 text-right font-semibold">Precio (S/)</th>
+                                <th class="px-4 py-2 text-right font-semibold">Parcial (S/)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <!-- Mano de Obra -->
+                            <tr class="bg-slate-50"><td colspan="6" class="px-4 py-2 font-semibold text-slate-700">Mano de Obra</td></tr>
+                            <tr>
+                                <td class="px-4 py-2">Capataz</td><td class="px-4 py-2 text-center">hh</td><td class="px-4 py-2 text-right">0.10</td><td class="px-4 py-2 text-right">0.0067</td><td class="px-4 py-2 text-right">25.00</td><td class="px-4 py-2 text-right">0.17</td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-2">Operario</td><td class="px-4 py-2 text-center">hh</td><td class="px-4 py-2 text-right">2.00</td><td class="px-4 py-2 text-right">0.1333</td><td class="px-4 py-2 text-right">21.50</td><td class="px-4 py-2 text-right">2.87</td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-2">Oficial</td><td class="px-4 py-2 text-center">hh</td><td class="px-4 py-2 text-right">1.00</td><td class="px-4 py-2 text-right">0.0667</td><td class="px-4 py-2 text-right">17.80</td><td class="px-4 py-2 text-right">1.19</td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-2">Peón</td><td class="px-4 py-2 text-center">hh</td><td class="px-4 py-2 text-right">6.00</td><td class="px-4 py-2 text-right">0.4000</td><td class="px-4 py-2 text-right">15.00</td><td class="px-4 py-2 text-right">6.00</td>
+                            </tr>
+                            
+                            <!-- Materiales -->
+                            <tr class="bg-slate-50"><td colspan="6" class="px-4 py-2 font-semibold text-slate-700">Materiales</td></tr>
+                            <tr>
+                                <td class="px-4 py-2">Concreto Premezclado f'c=175</td><td class="px-4 py-2 text-center">m³</td><td class="px-4 py-2 text-right">-</td><td class="px-4 py-2 text-right">0.1050</td><td class="px-4 py-2 text-right">450.00</td><td class="px-4 py-2 text-right">47.25</td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-2">Agua para curado</td><td class="px-4 py-2 text-center">m³</td><td class="px-4 py-2 text-right">-</td><td class="px-4 py-2 text-right">0.0100</td><td class="px-4 py-2 text-right">15.00</td><td class="px-4 py-2 text-right">0.15</td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-2">Líquido Curador</td><td class="px-4 py-2 text-center">gal</td><td class="px-4 py-2 text-right">-</td><td class="px-4 py-2 text-right">0.0300</td><td class="px-4 py-2 text-right">30.00</td><td class="px-4 py-2 text-right">0.90</td>
+                            </tr>
+
+                            <!-- Equipos -->
+                            <tr class="bg-slate-50"><td colspan="6" class="px-4 py-2 font-semibold text-slate-700">Equipos y Herramientas</td></tr>
+                            <tr>
+                                <td class="px-4 py-2">Herramientas Manuales</td><td class="px-4 py-2 text-center">%MO</td><td class="px-4 py-2 text-right">-</td><td class="px-4 py-2 text-right">3.0000</td><td class="px-4 py-2 text-right">10.23</td><td class="px-4 py-2 text-right">0.31</td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-2">Vibradora de Concreto 4HP</td><td class="px-4 py-2 text-center">hm</td><td class="px-4 py-2 text-right">1.00</td><td class="px-4 py-2 text-right">0.0667</td><td class="px-4 py-2 text-right">12.00</td><td class="px-4 py-2 text-right">0.80</td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-2">Cortadora de Pavimento</td><td class="px-4 py-2 text-center">hm</td><td class="px-4 py-2 text-right">1.00</td><td class="px-4 py-2 text-right">0.0667</td><td class="px-4 py-2 text-right">13.00</td><td class="px-4 py-2 text-right">0.87</td>
+                            </tr>
+                        </tbody>
+                        <tfoot class="bg-blue-50 text-blue-900 border-t-2 border-blue-200">
+                            <tr>
+                                <td colspan="5" class="px-4 py-3 text-right font-bold uppercase text-sm">Costo Unitario Directo por m²</td>
+                                <td class="px-4 py-3 text-right font-bold text-lg">S/ 50.51</td>
+                            </tr>
+                            <tr class="text-xs text-slate-500 bg-white">
+                                <td colspan="6" class="px-4 py-1 text-right italic">* Nota: Precio asumido para ejercicio académico. Sumando gastos generales y utilidad se aproxima a S/ 68.50.</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PESTAÑA: CRONOGRAMA ================= -->
+        <section id="tab-cronograma" class="tab-content hidden fade-in">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-slate-800">Cronograma de Ejecución (Gantt)</h2>
+                <p class="text-slate-600 mt-1">Planificación proyectada a 6 semanas (45 días calendario).</p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 overflow-x-auto">
+                <div class="min-w-[800px]">
+                    <!-- Header Semanas -->
+                    <div class="grid grid-cols-8 gap-1 bg-slate-100 text-slate-700 font-semibold text-sm rounded-t-lg border-b border-slate-300">
+                        <div class="col-span-2 p-3 border-r border-slate-300">Actividades</div>
+                        <div class="p-3 text-center border-r border-slate-300">Semana 1</div>
+                        <div class="p-3 text-center border-r border-slate-300">Semana 2</div>
+                        <div class="p-3 text-center border-r border-slate-300">Semana 3</div>
+                        <div class="p-3 text-center border-r border-slate-300">Semana 4</div>
+                        <div class="p-3 text-center border-r border-slate-300">Semana 5</div>
+                        <div class="p-3 text-center">Semana 6</div>
+                    </div>
+
+                    <!-- Fila 1 -->
+                    <div class="grid grid-cols-8 gap-1 border-b border-slate-100 items-center hover:bg-slate-50">
+                        <div class="col-span-2 p-3 text-sm text-slate-700">01. Obras Preliminares (Trazo)</div>
+                        <div class="col-span-1 p-2"><div class="bg-blue-500 h-6 rounded w-full shadow-sm"></div></div>
+                        <div class="col-span-5 p-2"></div>
+                    </div>
+                    
+                    <!-- Fila 2 -->
+                    <div class="grid grid-cols-8 gap-1 border-b border-slate-100 items-center hover:bg-slate-50">
+                        <div class="col-span-2 p-3 text-sm text-slate-700">02. Movimiento de Tierras</div>
+                        <div class="col-span-1 p-2"><div class="bg-orange-500 h-6 rounded w-1/2 ml-auto shadow-sm"></div></div>
+                        <div class="col-span-1 p-2"><div class="bg-orange-500 h-6 rounded w-full shadow-sm"></div></div>
+                        <div class="col-span-4 p-2"></div>
+                    </div>
+
+                    <!-- Fila 3 -->
+                    <div class="grid grid-cols-8 gap-1 border-b border-slate-100 items-center hover:bg-slate-50">
+                        <div class="col-span-2 p-3 text-sm text-slate-700">03. Encofrado</div>
+                        <div class="col-span-1 p-2"></div>
+                        <div class="col-span-1 p-2"><div class="bg-yellow-500 h-6 rounded w-1/2 ml-auto shadow-sm"></div></div>
+                        <div class="col-span-1 p-2"><div class="bg-yellow-500 h-6 rounded w-full shadow-sm"></div></div>
+                        <div class="col-span-1 p-2"><div class="bg-yellow-500 h-6 rounded w-full shadow-sm"></div></div>
+                        <div class="col-span-2 p-2"></div>
+                    </div>
+
+                    <!-- Fila 4 -->
+                    <div class="grid grid-cols-8 gap-1 border-b border-slate-100 items-center hover:bg-slate-50">
+                        <div class="col-span-2 p-3 text-sm text-slate-700">04. Vaciado de Concreto f'c=175</div>
+                        <div class="col-span-2 p-2"></div>
+                        <div class="col-span-1 p-2"><div class="bg-slate-600 h-6 rounded w-3/4 ml-auto shadow-sm"></div></div>
+                        <div class="col-span-1 p-2"><div class="bg-slate-600 h-6 rounded w-full shadow-sm"></div></div>
+                        <div class="col-span-1 p-2"><div class="bg-slate-600 h-6 rounded w-3/4 shadow-sm"></div></div>
+                        <div class="col-span-1 p-2"></div>
+                    </div>
+
+                    <!-- Fila 5 -->
+                    <div class="grid grid-cols-8 gap-1 border-b border-slate-100 items-center hover:bg-slate-50">
+                        <div class="col-span-2 p-3 text-sm text-slate-700">05. Curado</div>
+                        <div class="col-span-2 p-2"></div>
+                        <div class="col-span-1 p-2"></div>
+                        <div class="col-span-1 p-2"><div class="bg-cyan-400 h-6 rounded w-1/4 ml-auto shadow-sm"></div></div>
+                        <div class="col-span-1 p-2"><div class="bg-cyan-400 h-6 rounded w-full shadow-sm"></div></div>
+                        <div class="col-span-1 p-2"><div class="bg-cyan-400 h-6 rounded w-full shadow-sm"></div></div>
+                    </div>
+
+                    <!-- Fila 6 -->
+                    <div class="grid grid-cols-8 gap-1 items-center hover:bg-slate-50 rounded-b-lg">
+                        <div class="col-span-2 p-3 text-sm text-slate-700">06. Juntas Asfálticas y Limpieza</div>
+                        <div class="col-span-4 p-2"></div>
+                        <div class="col-span-1 p-2"><div class="bg-purple-500 h-6 rounded w-1/2 ml-auto shadow-sm"></div></div>
+                        <div class="col-span-1 p-2"><div class="bg-purple-500 h-6 rounded w-full shadow-sm"></div></div>
+                    </div>
+                </div>
+                
+                <div class="mt-6 flex flex-wrap gap-4 text-xs text-slate-500">
+                    <span class="flex items-center"><span class="w-3 h-3 bg-blue-500 rounded-sm mr-1"></span> Preliminares</span>
+                    <span class="flex items-center"><span class="w-3 h-3 bg-orange-500 rounded-sm mr-1"></span> Mov. Tierras</span>
+                    <span class="flex items-center"><span class="w-3 h-3 bg-yellow-500 rounded-sm mr-1"></span> Encofrado</span>
+                    <span class="flex items-center"><span class="w-3 h-3 bg-slate-600 rounded-sm mr-1"></span> Concreto</span>
+                    <span class="flex items-center"><span class="w-3 h-3 bg-cyan-400 rounded-sm mr-1"></span> Curado</span>
+                    <span class="flex items-center"><span class="w-3 h-3 bg-purple-500 rounded-sm mr-1"></span> Acabados/Juntas</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PESTAÑA: VALORIZACIONES ================= -->
+        <section id="tab-valorizaciones" class="tab-content hidden fade-in">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-slate-800">Valorizaciones y Control de Avance</h2>
+                <p class="text-slate-600 mt-1">Curva S de progreso: Comparativa de avance físico programado vs ejecutado real.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <!-- Gráfico de Curva S -->
+                <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+                    <canvas id="curvaSChart" class="w-full h-80"></canvas>
+                </div>
+
+                <!-- Resumen de Valorización -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col justify-center">
+                    <h3 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">Estado Actual (Semana 4)</h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="text-slate-500">Avance Programado:</span>
+                                <span class="font-bold text-blue-600">65.0%</span>
+                            </div>
+                            <div class="w-full bg-slate-200 rounded-full h-2">
+                                <div class="bg-blue-600 h-2 rounded-full" style="width: 65%"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="text-slate-500">Avance Real Ejecutado:</span>
+                                <span class="font-bold text-green-500">62.5%</span>
+                            </div>
+                            <div class="w-full bg-slate-200 rounded-full h-2">
+                                <div class="bg-green-500 h-2 rounded-full" style="width: 62.5%"></div>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 mt-2 border-t border-slate-100">
+                            <p class="text-xs text-slate-400 mb-1">Monto Valorizado Acumulado:</p>
+                            <p class="text-2xl font-bold text-slate-800">S/ 171,562.50</p>
+                        </div>
+                        
+                        <div class="bg-orange-50 border-l-4 border-orange-400 p-3 rounded text-sm text-orange-800">
+                            <i class="fa-solid fa-triangle-exclamation mr-1"></i>
+                            <strong>Estado:</strong> Ligero retraso (-2.5%). Se requiere incrementar cuadrilla de vaciado en semana 5.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de Valorizaciones Mensuales/Semanales -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-4 border-b border-slate-100 bg-slate-50">
+                    <h3 class="font-bold text-slate-700">Resumen de Valorizaciones (Por Semana)</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-slate-200 text-sm">
+                        <thead class="bg-white">
+                            <tr>
+                                <th class="px-6 py-3 text-left font-semibold text-slate-600">Periodo</th>
+                                <th class="px-6 py-3 text-right font-semibold text-slate-600">% Programado</th>
+                                <th class="px-6 py-3 text-right font-semibold text-slate-600">% Real</th>
+                                <th class="px-6 py-3 text-right font-semibold text-slate-600">Monto Parcial (S/)</th>
+                                <th class="px-6 py-3 text-right font-semibold text-slate-600">Acumulado (S/)</th>
+                                <th class="px-6 py-3 text-center font-semibold text-slate-600">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr>
+                                <td class="px-6 py-3 font-medium text-slate-800">Semana 1</td>
+                                <td class="px-6 py-3 text-right">10.0%</td>
+                                <td class="px-6 py-3 text-right">12.0%</td>
+                                <td class="px-6 py-3 text-right">32,940.00</td>
+                                <td class="px-6 py-3 text-right">32,940.00</td>
+                                <td class="px-6 py-3 text-center"><span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs">Adelantado</span></td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-3 font-medium text-slate-800">Semana 2</td>
+                                <td class="px-6 py-3 text-right">25.0%</td>
+                                <td class="px-6 py-3 text-right">24.0%</td>
+                                <td class="px-6 py-3 text-right">32,940.00</td>
+                                <td class="px-6 py-3 text-right">65,880.00</td>
+                                <td class="px-6 py-3 text-center"><span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs">Normal</span></td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-3 font-medium text-slate-800">Semana 3</td>
+                                <td class="px-6 py-3 text-right">45.0%</td>
+                                <td class="px-6 py-3 text-right">42.5%</td>
+                                <td class="px-6 py-3 text-right">50,782.50</td>
+                                <td class="px-6 py-3 text-right">116,662.50</td>
+                                <td class="px-6 py-3 text-center"><span class="px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs">Atrasado</span></td>
+                            </tr>
+                            <tr class="bg-blue-50/50">
+                                <td class="px-6 py-3 font-medium text-slate-800">Semana 4 (Actual)</td>
+                                <td class="px-6 py-3 text-right">65.0%</td>
+                                <td class="px-6 py-3 text-right font-bold">62.5%</td>
+                                <td class="px-6 py-3 text-right">54,900.00</td>
+                                <td class="px-6 py-3 text-right font-bold">171,562.50</td>
+                                <td class="px-6 py-3 text-center"><span class="px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs">Atrasado</span></td>
+                            </tr>
+                            <tr class="text-slate-400">
+                                <td class="px-6 py-3">Semana 5 (Proyectado)</td>
+                                <td class="px-6 py-3 text-right">85.0%</td>
+                                <td class="px-6 py-3 text-right">-</td>
+                                <td class="px-6 py-3 text-right">-</td>
+                                <td class="px-6 py-3 text-right">-</td>
+                                <td class="px-6 py-3 text-center">-</td>
+                            </tr>
+                            <tr class="text-slate-400">
+                                <td class="px-6 py-3">Semana 6 (Proyectado)</td>
+                                <td class="px-6 py-3 text-right">100.0%</td>
+                                <td class="px-6 py-3 text-right">-</td>
+                                <td class="px-6 py-3 text-right">-</td>
+                                <td class="px-6 py-3 text-right">-</td>
+                                <td class="px-6 py-3 text-center">-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // Función para cambiar de pestañas (Tabs)
+        function openTab(tabName) {
+            // Ocultar todos los contenidos
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => {
+                content.classList.add('hidden');
+            });
+
+            // Quitar clase activa de todos los botones
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('active', 'border-blue-600', 'text-blue-600');
+                btn.classList.add('border-transparent', 'text-slate-500');
+            });
+
+            // Mostrar el contenido seleccionado
+            document.getElementById('tab-' + tabName).classList.remove('hidden');
+            
+            // Activar el botón seleccionado
+            const activeBtn = document.getElementById('btn-' + tabName);
+            activeBtn.classList.remove('border-transparent', 'text-slate-500');
+            activeBtn.classList.add('active');
+
+            // Renderizar el gráfico de Chart.js SOLO cuando se abre la pestaña de valorizaciones
+            if(tabName === 'valorizaciones' && !window.chartRendered) {
+                renderChart();
+                window.chartRendered = true; // Para no renderizarlo varias veces
+            }
+        }
+
+        // Función para inicializar el gráfico de la Curva S usando Chart.js
+        function renderChart() {
+            const ctx = document.getElementById('curvaSChart').getContext('2d');
+            
+            const dataProgramado = [0, 10, 25, 45, 65, 85, 100];
+            const dataEjecutado = [0, 12, 24, 42.5, 62.5, null, null]; // Nulls para futuro
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Inicio', 'Sem 1', 'Sem 2', 'Sem 3', 'Sem 4', 'Sem 5', 'Sem 6'],
+                    datasets: [
+                        {
+                            label: '% Avance Programado',
+                            data: dataProgramado,
+                            borderColor: '#2563eb', // blue-600
+                            backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            tension: 0.3,
+                            fill: false
+                        },
+                        {
+                            label: '% Avance Real',
+                            data: dataEjecutado,
+                            borderColor: '#22c55e', // green-500
+                            backgroundColor: 'rgba(34, 197, 94, 0.2)',
+                            borderWidth: 3,
+                            pointBackgroundColor: '#22c55e',
+                            pointRadius: 5,
+                            tension: 0.3,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: { font: { family: "'Inter', sans-serif" } }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Curva S - Avance Acumulado de Proyecto',
+                            font: { family: "'Inter', sans-serif", size: 16 }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) { return value + "%" }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Porcentaje (%)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Iniciar en la primera pestaña
+        document.addEventListener('DOMContentLoaded', () => {
+            window.chartRendered = false;
+        });
+    </script>
+</body>
+</html>
